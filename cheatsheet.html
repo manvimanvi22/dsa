@@ -1,0 +1,1090 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>DSA Field Guide — Java Edition</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=IBM+Plex+Sans:wght@400;500;600;700&family=IBM+Plex+Serif:wght@400;500;600&family=IBM+Plex+Mono:wght@400;500;600&display=swap" rel="stylesheet">
+<style>
+  :root{
+    --ink:#0F1B2D;
+    --ink-deep:#091221;
+    --ink-soft:#16263D;
+    --ink-line: rgba(255,255,255,0.07);
+    --paper:#ECE6D6;
+    --paper-dim:#DDD5BE;
+    --paper-line: rgba(27,35,48,0.14);
+    --text-ink:#E9E7DE;
+    --text-ink-dim:#9BA6B7;
+    --text-paper:#1C2433;
+    --text-paper-dim:#5B5F4E;
+    --gold:#D9A441;
+    --gold-deep:#A87A26;
+    --teal:#4FB6A8;
+    --coral:#E0654F;
+    --coral-deep:#B0402D;
+    --radius:14px;
+    --maxw:1180px;
+  }
+
+  *{box-sizing:border-box;}
+  html{scroll-behavior:smooth;}
+  body{
+    margin:0;
+    background:var(--ink);
+    color:var(--text-ink);
+    font-family:'IBM Plex Serif', serif;
+    line-height:1.65;
+    background-image:
+      radial-gradient(circle, var(--ink-line) 1px, transparent 1px);
+    background-size: 26px 26px;
+  }
+
+  h1,h2,h3,.display{
+    font-family:'IBM Plex Sans', sans-serif;
+    font-weight:700;
+    letter-spacing:-0.01em;
+    margin:0;
+  }
+  code, .mono, .eyebrow, .badge, .legend, table, .nav-link, .sidebar-title, .topbar input{
+    font-family:'IBM Plex Mono', monospace;
+  }
+  a{color:inherit;}
+
+  /* ---------- topbar ---------- */
+  .topbar{
+    position:sticky; top:0; z-index:50;
+    display:flex; align-items:center; justify-content:space-between;
+    gap:16px;
+    padding:14px 28px;
+    background:rgba(9,18,33,0.88);
+    backdrop-filter: blur(8px);
+    border-bottom:1px solid var(--ink-line);
+  }
+  .brand{display:flex; align-items:baseline; gap:10px;}
+  .brand .mark{ color:var(--gold); font-size:13px; }
+  .brand .name{ font-size:16px; font-weight:600; }
+  .topbar input{
+    background:var(--ink-soft);
+    border:1px solid var(--ink-line);
+    color:var(--text-ink);
+    padding:8px 12px;
+    border-radius:8px;
+    font-size:13px;
+    width:220px;
+    outline:none;
+  }
+  .topbar input::placeholder{color:var(--text-ink-dim);}
+  .topbar input:focus{border-color:var(--gold);}
+
+  /* ---------- hero ---------- */
+  .hero{
+    max-width:var(--maxw); margin:0 auto;
+    padding:64px 28px 40px;
+    display:grid; grid-template-columns: 1.1fr 1fr; gap:48px; align-items:center;
+  }
+  .hero .eyebrow{ color:var(--gold); font-size:13px; letter-spacing:0.02em; }
+  .hero h1{
+    font-size:clamp(34px, 5vw, 54px);
+    line-height:1.05;
+    margin-top:14px;
+  }
+  .hero h1 em{ color:var(--teal); font-style:normal; }
+  .hero p.lead{
+    font-family:'IBM Plex Serif', serif;
+    color:var(--text-ink-dim);
+    font-size:16px;
+    max-width:500px;
+    margin-top:18px;
+  }
+  .graph-wrap{
+    background:var(--ink-deep);
+    border:1px solid var(--ink-line);
+    border-radius:var(--radius);
+    padding:18px 18px 10px;
+  }
+  .graph-wrap .cap{
+    display:flex; justify-content:space-between; align-items:baseline;
+    margin-bottom:6px;
+  }
+  .graph-wrap .cap .file{ font-size:12px; color:var(--text-ink-dim); }
+  svg.graph{ width:100%; height:auto; display:block; }
+  .axis-label{ font-family:'IBM Plex Mono',monospace; font-size:11px; fill:var(--text-ink-dim); }
+  .curve{ fill:none; stroke-width:2.4; transition: opacity .25s ease, stroke-width .25s ease; }
+
+  .legend{
+    display:flex; flex-wrap:wrap; gap:10px 16px;
+    padding:12px 4px 4px;
+    font-size:11.5px;
+  }
+  .legend .item{ display:flex; align-items:center; gap:6px; cursor:default; color:var(--text-ink-dim); }
+  .legend .item:hover{ color:var(--text-ink); }
+  .legend .dot{ width:9px; height:9px; border-radius:2px; display:inline-block; }
+
+  /* ---------- layout ---------- */
+  .layout{
+    max-width:var(--maxw); margin:0 auto;
+    display:grid; grid-template-columns: 230px 1fr; gap:40px;
+    padding:0 28px 100px;
+    align-items:start;
+  }
+  .sidebar{
+    position:sticky; top:78px;
+    max-height: calc(100vh - 100px);
+    overflow-y:auto;
+    padding-right:6px;
+    border-right:1px solid var(--ink-line);
+  }
+  .sidebar-title{
+    font-size:11px; color:var(--text-ink-dim); letter-spacing:0.06em;
+    margin-bottom:10px;
+  }
+  .sidebar ul{ list-style:none; margin:0; padding:0; }
+  .sidebar li{ margin-bottom:2px; }
+  .nav-link{
+    display:block;
+    font-size:12.5px;
+    padding:6px 10px 6px 12px;
+    border-left:2px solid transparent;
+    color:var(--text-ink-dim);
+    text-decoration:none;
+    border-radius:0 6px 6px 0;
+    white-space:nowrap;
+    overflow:hidden;
+    text-overflow:ellipsis;
+  }
+  .nav-link:hover{ color:var(--text-ink); background:var(--ink-soft); }
+  .nav-link.active{ color:var(--gold); border-left-color:var(--gold); background:var(--ink-soft); }
+
+  main{ min-width:0; }
+  section.card{
+    background:var(--paper);
+    color:var(--text-paper);
+    border-radius:var(--radius);
+    padding:32px 34px 30px;
+    margin-bottom:28px;
+    opacity:0; transform:translateY(14px);
+    transition:opacity .5s ease, transform .5s ease;
+  }
+  section.card.in-view{ opacity:1; transform:translateY(0); }
+
+  .eyebrow{ font-size:12px; color:var(--gold-deep); margin-bottom:8px; }
+  section.card h2{ font-size:24px; color:var(--text-paper); }
+  section.card h3{
+    font-size:14px; color:var(--text-paper); margin-top:24px; margin-bottom:4px;
+    letter-spacing:0.01em;
+  }
+  section.card .lede{
+    font-family:'IBM Plex Serif', serif;
+    color:var(--text-paper-dim);
+    font-size:15px;
+    margin-top:10px;
+    max-width:700px;
+  }
+  section.card p.body-text{
+    font-family:'IBM Plex Serif', serif;
+    color:var(--text-paper);
+    font-size:14.5px;
+    margin-top:8px;
+    max-width:700px;
+  }
+
+  .badges{ display:flex; gap:8px; flex-wrap:wrap; margin-top:14px; }
+  .badge{
+    font-size:11px;
+    padding:4px 9px;
+    border-radius:20px;
+    border:1px solid var(--paper-line);
+    color:var(--text-paper-dim);
+  }
+  .badge.good{ border-color:var(--teal); color:var(--teal); }
+  .badge.mid{ border-color:var(--gold-deep); color:var(--gold-deep); }
+  .badge.bad{ border-color:var(--coral); color:var(--coral); }
+
+  .codepanel{
+    background:var(--ink-deep);
+    border:1px solid var(--ink-line);
+    border-radius:10px;
+    margin-top:18px;
+    overflow:hidden;
+  }
+  .codepanel .tab{
+    display:flex; align-items:center; gap:8px;
+    padding:8px 14px;
+    border-bottom:1px solid var(--ink-line);
+    font-size:11.5px;
+    color:var(--text-ink-dim);
+  }
+  .codepanel .tab .dot{ width:7px; height:7px; border-radius:50%; background:var(--teal); }
+  .codepanel pre{
+    margin:0;
+    padding:16px 18px;
+    font-size:12.8px;
+    line-height:1.6;
+    color:var(--text-ink);
+    overflow-x:auto;
+  }
+  .codepanel pre .c{ color:var(--text-ink-dim); }
+
+  table.ref{
+    width:100%;
+    border-collapse:collapse;
+    margin-top:18px;
+    font-size:12.5px;
+  }
+  table.ref th, table.ref td{
+    text-align:left;
+    padding:9px 12px;
+    border-bottom:1px solid var(--paper-line);
+    vertical-align:top;
+  }
+  table.ref th{ color:var(--text-paper-dim); font-weight:600; letter-spacing:0.03em; font-size:11px; }
+  table.ref tr:last-child td{ border-bottom:none; }
+  table.ref td.num{ color:var(--gold-deep); }
+
+  .two-col{ display:grid; grid-template-columns:1fr 1fr; gap:18px; margin-top:18px; }
+  @media (max-width:700px){ .two-col{ grid-template-columns:1fr; } }
+
+  .signal-row{ display:grid; grid-template-columns: 1fr 1fr; gap:14px; padding:12px 0; border-bottom:1px solid var(--paper-line); }
+  .signal-row:last-child{ border-bottom:none; }
+  .signal-row .signal{ font-size:13px; }
+  .signal-row .approach{ font-size:13px; color:var(--gold-deep); font-weight:600; }
+
+  .scale-bar{ margin-top:18px; display:flex; flex-direction:column; gap:8px; }
+  .scale-row{ display:grid; grid-template-columns: 140px 1fr; align-items:center; gap:12px; font-size:12.5px; }
+  .scale-row .track{ height:8px; border-radius:6px; background:var(--paper-dim); position:relative; overflow:hidden; }
+  .scale-row .fill{ position:absolute; left:0; top:0; bottom:0; border-radius:6px; }
+
+  /* explanatory callouts */
+  .note, .warn{
+    margin-top:16px; padding:14px 16px 14px;
+    border-radius:0 8px 8px 0;
+    font-size:13.5px; max-width:720px;
+  }
+  .note{ background:rgba(79,182,168,0.10); border-left:3px solid var(--teal); }
+  .warn{ background:rgba(224,101,79,0.10); border-left:3px solid var(--coral); }
+  .note .tag, .warn .tag{
+    display:block; font-family:'IBM Plex Mono',monospace; font-size:10.5px;
+    letter-spacing:0.07em; margin-bottom:6px; font-weight:600;
+  }
+  .note .tag{ color:var(--teal); }
+  .warn .tag{ color:var(--coral); }
+  .note p, .warn p{ margin:0 0 6px 0; }
+  .note p:last-child, .warn p:last-child{ margin-bottom:0; }
+
+  /* worked-example trace */
+  .trace{ margin-top:16px; display:flex; flex-direction:column; gap:9px; max-width:720px; }
+  .trace .step{ display:grid; grid-template-columns:24px 1fr; gap:10px; font-size:13px; align-items:baseline; }
+  .trace .step .n{
+    width:24px; height:24px; border-radius:50%; background:var(--ink); color:var(--paper);
+    display:flex; align-items:center; justify-content:center;
+    font-family:'IBM Plex Mono',monospace; font-size:10.5px; font-weight:600; margin-top:1px;
+  }
+  .trace .step .t code{ background:var(--paper-dim); padding:1px 5px; border-radius:4px; font-size:11.5px; }
+
+  footer{ max-width:var(--maxw); margin:0 auto; padding:30px 28px 70px; color:var(--text-ink-dim); font-size:12.5px; border-top:1px solid var(--ink-line); }
+
+  .totop{
+    position:fixed; bottom:24px; right:24px;
+    width:42px; height:42px; border-radius:50%;
+    background:var(--gold); color:var(--ink-deep);
+    display:flex; align-items:center; justify-content:center;
+    font-size:16px; text-decoration:none;
+    opacity:0; pointer-events:none;
+    transition:opacity .25s ease, transform .25s ease;
+    box-shadow:0 6px 18px rgba(0,0,0,0.35);
+  }
+  .totop.show{ opacity:1; pointer-events:auto; }
+  .totop:hover{ transform:translateY(-2px); }
+
+  @media (max-width:880px){
+    .hero{ grid-template-columns:1fr; padding-top:36px; }
+    .layout{ grid-template-columns:1fr; }
+    .sidebar{
+      position:sticky; top:64px; z-index:40;
+      max-height:none; border-right:none; border-bottom:1px solid var(--ink-line);
+      background:var(--ink); padding:10px 0 14px; margin-bottom:6px;
+    }
+    .sidebar ul{ display:flex; gap:6px; overflow-x:auto; padding-bottom:4px; }
+    .sidebar li{ margin-bottom:0; flex:0 0 auto; }
+    .sidebar-title{ display:none; }
+    .nav-link{ border-left:none; border-bottom:2px solid transparent; border-radius:6px; background:var(--ink-soft); }
+    .nav-link.active{ border-left:none; border-bottom-color:var(--gold); }
+    .topbar input{ width:140px; }
+  }
+
+  @media (prefers-reduced-motion: reduce){
+    *{ transition:none !important; animation:none !important; }
+    section.card{ opacity:1; transform:none; }
+  }
+</style>
+</head>
+<body>
+
+<div class="topbar">
+  <div class="brand"><span class="mark">//</span><span class="name">dsa-field-guide.java</span></div>
+  <input id="filter" type="text" placeholder="filter topics&hellip;">
+</div>
+
+<div class="hero">
+  <div>
+    <div class="eyebrow">// reference.init() — JAVA EDITION, ANNOTATED</div>
+    <h1>A field guide to<br><em>how things grow —</em><br>and why.</h1>
+    <p class="lead">Not just what to type. Every entry explains the mechanism underneath: why an operation costs what it costs, where it breaks, and the worked example that makes it click. Index <strong>[00]&ndash;[18]</strong>.</p>
+  </div>
+  <div class="graph-wrap">
+    <div class="cap"><span class="file">growth_curves.svg — operations vs. input size</span></div>
+    <svg class="graph" viewBox="0 0 640 360" xmlns="http://www.w3.org/2000/svg">
+      <line x1="60" y1="20" x2="60" y2="320" stroke="var(--ink-line)" stroke-width="1"/>
+      <line x1="60" y1="320" x2="600" y2="320" stroke="var(--ink-line)" stroke-width="1"/>
+      <text x="64" y="16" class="axis-label">operations</text>
+      <text x="540" y="338" class="axis-label">input size n</text>
+      <path id="c1" class="curve" d="M60,310 L600,309" stroke="#4FB6A8"/>
+      <path id="clog" class="curve" d="M60,300 C200,262 400,232 600,212" stroke="#4FB6A8"/>
+      <path id="cn" class="curve" d="M60,300 L600,100" stroke="#D9A441"/>
+      <path id="cnlogn" class="curve" d="M60,300 C250,252 420,150 600,58" stroke="#D9A441"/>
+      <path id="cn2" class="curve" d="M60,300 C350,300 480,140 600,28" stroke="#E0654F"/>
+      <path id="c2n" class="curve" d="M60,300 C560,300 592,150 600,14" stroke="#B0402D"/>
+    </svg>
+    <div class="legend">
+      <span class="item" data-target="c1"><span class="dot" style="background:#4FB6A8"></span>O(1) constant</span>
+      <span class="item" data-target="clog"><span class="dot" style="background:#4FB6A8"></span>O(log n) logarithmic</span>
+      <span class="item" data-target="cn"><span class="dot" style="background:#D9A441"></span>O(n) linear</span>
+      <span class="item" data-target="cnlogn"><span class="dot" style="background:#D9A441"></span>O(n log n) linearithmic</span>
+      <span class="item" data-target="cn2"><span class="dot" style="background:#E0654F"></span>O(n&sup2;) quadratic</span>
+      <span class="item" data-target="c2n"><span class="dot" style="background:#B0402D"></span>O(2&#8319;) exponential</span>
+    </div>
+  </div>
+</div>
+
+<div class="layout">
+  <nav class="sidebar">
+    <div class="sidebar-title">CONTENTS · 19 ENTRIES</div>
+    <ul id="navlist">
+      <li><a class="nav-link" href="#s00">[00] Complexity</a></li>
+      <li><a class="nav-link" href="#s01">[01] Arrays &amp; Strings</a></li>
+      <li><a class="nav-link" href="#s02">[02] Linked Lists</a></li>
+      <li><a class="nav-link" href="#s03">[03] Stacks &amp; Queues</a></li>
+      <li><a class="nav-link" href="#s04">[04] Hash Tables</a></li>
+      <li><a class="nav-link" href="#s05">[05] Trees</a></li>
+      <li><a class="nav-link" href="#s06">[06] Heaps</a></li>
+      <li><a class="nav-link" href="#s07">[07] Tries</a></li>
+      <li><a class="nav-link" href="#s08">[08] Graphs</a></li>
+      <li><a class="nav-link" href="#s09">[09] Sorting</a></li>
+      <li><a class="nav-link" href="#s10">[10] Searching</a></li>
+      <li><a class="nav-link" href="#s11">[11] Backtracking</a></li>
+      <li><a class="nav-link" href="#s12">[12] Dynamic Programming</a></li>
+      <li><a class="nav-link" href="#s13">[13] Greedy</a></li>
+      <li><a class="nav-link" href="#s14">[14] Two Pointers</a></li>
+      <li><a class="nav-link" href="#s15">[15] Bit Manipulation</a></li>
+      <li><a class="nav-link" href="#s16">[16] Java Collections</a></li>
+      <li><a class="nav-link" href="#s17">[17] Signal &rarr; Approach</a></li>
+      <li><a class="nav-link" href="#s18">[18] Input Size Guide</a></li>
+    </ul>
+  </nav>
+
+  <main id="maincontent">
+
+    <section class="card" id="s00" data-title="complexity big-o reference how to compute">
+      <div class="eyebrow">// topics[00]</div>
+      <h2>Complexity Reference</h2>
+      <p class="lede">Big-O describes how an algorithm's cost grows as input size <code>n</code> grows toward infinity — it deliberately ignores constants and lower-order terms, because those stop mattering at scale.</p>
+
+      <h3>How to compute it</h3>
+      <div class="trace">
+        <div class="step"><span class="n">1</span><span class="t">Count the basic operations as a function of <code>n</code>. A single loop over <code>n</code> items is <code>n</code> operations.</span></div>
+        <div class="step"><span class="n">2</span><span class="t">Drop constant factors: <code>3n</code> and <code>n</code> are both <code>O(n)</code> — the constant doesn't change the growth shape.</span></div>
+        <div class="step"><span class="n">3</span><span class="t">Keep only the dominant term: <code>n&sup2; + n</code> simplifies to <code>O(n&sup2;)</code>, since the quadratic term swamps the linear one as <code>n</code> grows.</span></div>
+        <div class="step"><span class="n">4</span><span class="t">Nested loops multiply: a loop inside a loop, each running <code>n</code> times, gives <code>O(n&sup2;)</code>.</span></div>
+      </div>
+
+      <h3>Best, average, worst case</h3>
+      <p class="body-text">These describe different input scenarios, not different algorithms. Quicksort averages <code>O(n log n)</code> across random inputs, but degrades to <code>O(n&sup2;)</code> on an already-sorted array if the pivot is chosen poorly (see [09]). Cheat sheets usually quote average case unless noted.</p>
+
+      <h3>Space complexity</h3>
+      <p class="body-text">The same rules apply to memory: count the <em>extra</em> memory an algorithm uses beyond the input itself. A recursive function's call stack counts — recursing <code>n</code> levels deep uses <code>O(n)</code> space even if no array is ever allocated.</p>
+
+      <table class="ref">
+        <tr><th>Structure</th><th>Access</th><th>Search</th><th>Insert</th><th>Delete</th></tr>
+        <tr><td>Array</td><td class="num">O(1)</td><td class="num">O(n)</td><td class="num">O(n)</td><td class="num">O(n)</td></tr>
+        <tr><td>ArrayList (dynamic)</td><td class="num">O(1)</td><td class="num">O(n)</td><td class="num">O(n)*</td><td class="num">O(n)</td></tr>
+        <tr><td>Linked List</td><td class="num">O(n)</td><td class="num">O(n)</td><td class="num">O(1)</td><td class="num">O(1)</td></tr>
+        <tr><td>Hash Map / Set</td><td class="num">&mdash;</td><td class="num">O(1)</td><td class="num">O(1)</td><td class="num">O(1)</td></tr>
+        <tr><td>Balanced BST</td><td class="num">O(log n)</td><td class="num">O(log n)</td><td class="num">O(log n)</td><td class="num">O(log n)</td></tr>
+        <tr><td>Heap</td><td class="num">&mdash;</td><td class="num">O(n)</td><td class="num">O(log n)</td><td class="num">O(log n)*</td></tr>
+        <tr><td>Trie</td><td class="num">&mdash;</td><td class="num">O(k)</td><td class="num">O(k)</td><td class="num">O(k)</td></tr>
+      </table>
+      <p class="lede" style="font-size:13px;">*ArrayList append is amortized O(1) (see [01]). Heap delete is O(log n) only for the root.</p>
+    </section>
+
+    <section class="card" id="s01" data-title="arrays strings memory layout amortized doubling stringbuilder">
+      <div class="eyebrow">// topics[01]</div>
+      <h2>Arrays &amp; Strings</h2>
+      <p class="lede">The default container, and the one whose costs are easiest to derive directly from how memory actually works.</p>
+
+      <h3>Why access is O(1)</h3>
+      <p class="body-text">An array is one contiguous block of memory. To read index <code>i</code>, the runtime computes <code>address = base + i &times; elementSize</code> — a single arithmetic operation, regardless of how large the array is. That's the entire reason arrays are fast: there's no searching, just math.</p>
+
+      <h3>Why insert/delete is O(n)</h3>
+      <p class="body-text">Contiguity is also the catch. Inserting at index 0 means every element after it has to physically shift one slot to the right to preserve the "no gaps" property — that's up to <code>n</code> moves.</p>
+
+      <div class="note">
+        <span class="tag">HOW ARRAYLIST GETS AMORTIZED O(1) APPEND</span>
+        <p>An ArrayList isn't magic — under the hood it's a plain array with spare capacity. Most <code>add()</code> calls just drop the element into unused space: O(1). When the backing array fills up, it allocates a new array at <strong>double</strong> the size and copies everything over: one expensive O(n) operation. Because doubling happens exponentially less often as the list grows, that occasional cost spreads out to O(1) <em>on average</em> per insert — this is what "amortized" means.</p>
+      </div>
+
+      <div class="codepanel">
+        <div class="tab"><span class="dot"></span>Basics.java</div>
+        <pre>int[] arr = {1, 2, 3};
+List&lt;Integer&gt; list = new ArrayList&lt;&gt;();
+list.add(5); list.get(0); list.remove(0);
+
+int[][] grid = new int[rows][cols];      <span class="c">// 2D array</span>
+
+StringBuilder sb = new StringBuilder();
+sb.append("a").reverse().toString();
+
+Arrays.sort(arr);                          <span class="c">// primitives, ascending only</span>
+Integer[] boxed = {3, 1, 2};
+Arrays.sort(boxed, Collections.reverseOrder());</pre>
+      </div>
+
+      <div class="warn">
+        <span class="tag">WHY STRINGBUILDER EXISTS</span>
+        <p>Java strings are immutable — <code>s += "x"</code> doesn't mutate <code>s</code>, it allocates an entirely new string and copies the old contents into it. Do that inside a loop of <code>n</code> concatenations and you've paid for <code>1 + 2 + 3 + &hellip; + n</code> characters copied: <code>O(n&sup2;)</code> total. <code>StringBuilder</code> keeps one mutable internal buffer and only resizes it the same way ArrayList does, bringing the whole loop down to <code>O(n)</code>.</p>
+      </div>
+
+      <h3>Worked example — two pointers, palindrome check</h3>
+      <p class="body-text">Checking if <code>"racecar"</code> is a palindrome without extra memory:</p>
+      <div class="trace">
+        <div class="step"><span class="n">1</span><span class="t">Place <code>left</code> at index 0 and <code>right</code> at index 6 (the last index).</span></div>
+        <div class="step"><span class="n">2</span><span class="t">Compare <code>s[left]</code> and <code>s[right]</code>: <code>'r' == 'r'</code> &rarr; match, move both pointers inward.</span></div>
+        <div class="step"><span class="n">3</span><span class="t">Repeat: <code>'a'=='a'</code>, <code>'c'=='c'</code>, pointers keep closing in.</span></div>
+        <div class="step"><span class="n">4</span><span class="t">Pointers meet or cross at the middle (<code>'e'</code>) without ever mismatching &rarr; palindrome confirmed in a single O(n) pass, O(1) extra space.</span></div>
+      </div>
+      <p class="lede" style="margin-top:14px;"><strong>Related patterns:</strong> sliding window and prefix sums use the same "walk the array once, track state" idea — see [14].</p>
+    </section>
+
+    <section class="card" id="s02" data-title="linked lists pointers floyd cycle dummy node singly doubly">
+      <div class="eyebrow">// topics[02]</div>
+      <h2>Linked Lists</h2>
+      <p class="lede">Every node only knows about the node after it (or before it, for doubly-linked). That single design choice flips every cost in [01] upside down.</p>
+
+      <h3>Why the trade-off flips</h3>
+      <p class="body-text">There's no formula for "the address of node 5" the way there is for arrays — you have to walk from the head, following pointers one at a time, which makes access <code>O(n)</code>. But inserting a node is just rewiring two pointers wherever you're already standing: <code>O(1)</code>, no shifting required.</p>
+
+      <table class="ref">
+        <tr><th>Variant</th><th>Structure</th><th>Notable trait</th></tr>
+        <tr><td>Singly linked</td><td>node &rarr; next</td><td>Can't walk backward; lowest memory overhead</td></tr>
+        <tr><td>Doubly linked</td><td>prev &larr; node &rarr; next</td><td>O(1) removal given just a node reference</td></tr>
+        <tr><td>Circular</td><td>tail &rarr; head</td><td>No null terminator; used for round-robin scheduling</td></tr>
+      </table>
+
+      <div class="codepanel">
+        <div class="tab"><span class="dot"></span>ListNode.java</div>
+        <pre>class ListNode {
+    int val;
+    ListNode next;
+    ListNode(int val) { this.val = val; }
+}
+
+ListNode reverse(ListNode head) {
+    ListNode prev = null;
+    while (head != null) {
+        ListNode next = head.next;  <span class="c">// save before we overwrite it</span>
+        head.next = prev;           <span class="c">// flip the pointer</span>
+        prev = head;
+        head = next;
+    }
+    return prev;
+}</pre>
+      </div>
+
+      <h3>Worked example — Floyd's cycle detection</h3>
+      <p class="body-text">Two pointers, one moving twice as fast as the other:</p>
+      <div class="trace">
+        <div class="step"><span class="n">1</span><span class="t"><code>slow</code> and <code>fast</code> both start at <code>head</code>.</span></div>
+        <div class="step"><span class="n">2</span><span class="t">Each step, <code>slow</code> moves 1 node, <code>fast</code> moves 2 nodes.</span></div>
+        <div class="step"><span class="n">3</span><span class="t">If there's no cycle, <code>fast</code> hits <code>null</code> and exits — no cycle exists.</span></div>
+        <div class="step"><span class="n">4</span><span class="t">If there <em>is</em> a cycle, <code>fast</code> enters it first and laps <code>slow</code> from behind. Since the gap between them shrinks by 1 every step, they're guaranteed to land on the same node eventually — O(n) time, O(1) space, no extra memory needed to track "visited."</span></div>
+      </div>
+
+      <div class="note">
+        <span class="tag">WHY A DUMMY HEAD NODE HELPS</span>
+        <p>A common pain point: deleting the actual first node needs special-case code, because there's no "previous" node to repoint. Allocating a fake <code>dummy</code> node before the real head means every real node — including the first — has a predecessor, so insert/delete logic stays uniform with no edge cases.</p>
+      </div>
+    </section>
+
+    <section class="card" id="s03" data-title="stacks queues lifo fifo monotonic call stack circular">
+      <div class="eyebrow">// topics[03]</div>
+      <h2>Stacks &amp; Queues</h2>
+      <p class="lede">Same underlying idea — a list with restricted access — but opposite rules about which end you're allowed to touch.</p>
+
+      <h3>How they relate to recursion</h3>
+      <p class="body-text">Every function call you make is secretly pushed onto a real call stack: local variables, the return address, all of it. That's why recursion that goes too deep throws a <code>StackOverflowError</code> — it's the same stack you're modeling explicitly with <code>Deque</code>.</p>
+
+      <div class="two-col">
+        <div class="codepanel">
+          <div class="tab"><span class="dot"></span>Stack — LIFO</div>
+          <pre>Deque&lt;Integer&gt; stack = new ArrayDeque&lt;&gt;();
+stack.push(1);
+stack.pop();
+stack.peek();</pre>
+        </div>
+        <div class="codepanel">
+          <div class="tab"><span class="dot"></span>Queue — FIFO</div>
+          <pre>Queue&lt;Integer&gt; q = new LinkedList&lt;&gt;();
+q.offer(1);
+q.poll();
+q.peek();</pre>
+        </div>
+      </div>
+
+      <h3>Worked example — monotonic stack (next greater element)</h3>
+      <p class="body-text">For <code>[2, 1, 2, 4, 3]</code>, find the next number to the right that's bigger than each element:</p>
+      <div class="trace">
+        <div class="step"><span class="n">1</span><span class="t">Walk left to right, keeping a stack of indices whose "next greater" isn't found yet.</span></div>
+        <div class="step"><span class="n">2</span><span class="t">At each new number, pop every stacked index whose value is smaller than the current one — the current number <em>is</em> their answer.</span></div>
+        <div class="step"><span class="n">3</span><span class="t">Push the current index, then continue. Because each index is pushed once and popped at most once, the whole pass is O(n) — not O(n&sup2;), despite the nested-looking pops.</span></div>
+      </div>
+
+      <div class="note">
+        <span class="tag">ARRAY-BACKED QUEUES NEED WRAP-AROUND</span>
+        <p>If you implement a queue on a plain array, removing from the front by shifting everything left is O(n) — defeating the point. A circular buffer instead tracks separate <code>head</code> and <code>tail</code> indices that wrap around the array's end, keeping both enqueue and dequeue O(1).</p>
+      </div>
+      <p class="lede" style="margin-top:14px;"><strong>Use cases:</strong> stack &rarr; bracket matching, undo, DFS. Queue &rarr; BFS, task scheduling. Deque &rarr; sliding window maximum.</p>
+    </section>
+
+    <section class="card" id="s04" data-title="hash tables hashing collisions load factor resizing hashcode equals">
+      <div class="eyebrow">// topics[04]</div>
+      <h2>Hash Tables</h2>
+      <p class="lede">The fastest "have I seen this before" available — provided the hash function does its job.</p>
+
+      <h3>How it actually works</h3>
+      <div class="trace">
+        <div class="step"><span class="n">1</span><span class="t">A hash function converts a key into an integer (its <code>hashCode()</code>), then maps that integer to one of a fixed number of buckets, usually via <code>hash % numBuckets</code>.</span></div>
+        <div class="step"><span class="n">2</span><span class="t">Lookup hashes the key, jumps straight to that bucket, and checks for a match — no scanning required, hence O(1).</span></div>
+        <div class="step"><span class="n">3</span><span class="t">Two different keys can land in the same bucket — a <em>collision</em>. Java's HashMap handles this by chaining: each bucket holds a small list (or balanced tree, once a bucket gets large) of entries.</span></div>
+        <div class="step"><span class="n">4</span><span class="t">As the map fills up, more collisions pile into each bucket. Once the ratio of entries to buckets (the <em>load factor</em>, default 0.75 in Java) is exceeded, the map <em>resizes</em>: allocates a bigger bucket array and rehashes everything — the same amortized-cost idea as ArrayList in [01].</span></div>
+      </div>
+
+      <div class="warn">
+        <span class="tag">WHY WORST CASE IS O(n)</span>
+        <p>If every key collided into a single bucket — a broken or adversarial hash function — lookup degrades into scanning a linked list: O(n). This is also why <code>hashCode()</code> and <code>equals()</code> must agree: if two objects are <code>equals</code> but have different hash codes, HashMap will look in the wrong bucket and never find the entry at all.</p>
+      </div>
+
+      <div class="codepanel">
+        <div class="tab"><span class="dot"></span>Lookup.java</div>
+        <pre>Map&lt;String, Integer&gt; map = new HashMap&lt;&gt;();
+map.put("a", 1);
+map.getOrDefault("b", 0);
+map.containsKey("a");
+
+Set&lt;Integer&gt; set = new HashSet&lt;&gt;();
+set.add(1); set.contains(1);
+
+LinkedHashMap&lt;String, Integer&gt; ordered = new LinkedHashMap&lt;&gt;(); <span class="c">// insertion order</span>
+TreeMap&lt;String, Integer&gt; sorted = new TreeMap&lt;&gt;();               <span class="c">// sorted by key, O(log n) ops</span></pre>
+      </div>
+    </section>
+
+    <section class="card" id="s05" data-title="trees binary search tree traversal balanced height lca avl">
+      <div class="eyebrow">// topics[05]</div>
+      <h2>Trees</h2>
+      <p class="lede">A recursive idea: a tree is a node plus two smaller trees. Almost every tree algorithm is a direct translation of that definition into code.</p>
+
+      <h3>Why inorder traversal gives sorted output for a BST</h3>
+      <p class="body-text">A binary search tree maintains one invariant at every node: everything in the left subtree is smaller, everything in the right subtree is larger. Inorder traversal visits left subtree &rarr; node &rarr; right subtree — which, by that invariant, visits smaller values, then the current value, then larger values. Apply that recursively at every node and the output comes out fully sorted, for free.</p>
+
+      <div class="codepanel">
+        <div class="tab"><span class="dot"></span>BinaryTree.java</div>
+        <pre>class TreeNode {
+    int val;
+    TreeNode left, right;
+    TreeNode(int val) { this.val = val; }
+}
+
+void inorder(TreeNode n, List&lt;Integer&gt; out) {
+    if (n == null) return;
+    inorder(n.left, out);
+    out.add(n.val);
+    inorder(n.right, out);
+}
+
+void levelOrder(TreeNode root) {           <span class="c">// BFS, level by level</span>
+    Queue&lt;TreeNode&gt; q = new LinkedList&lt;&gt;();
+    if (root != null) q.offer(root);
+    while (!q.isEmpty()) {
+        TreeNode node = q.poll();
+        if (node.left != null) q.offer(node.left);
+        if (node.right != null) q.offer(node.right);
+    }
+}</pre>
+      </div>
+
+      <div class="warn">
+        <span class="tag">WHY "BALANCED" MATTERS</span>
+        <p>O(log n) search assumes the tree's height is roughly <code>log n</code>. But insert values in already-sorted order — 1, 2, 3, 4&hellip; — into a plain BST, and every node only ever gets a right child. The tree degenerates into what is structurally a linked list, and search becomes O(n). Self-balancing trees (AVL, Red-Black) fix this by performing <em>rotations</em> after insert/delete that re-shuffle nodes to keep height logarithmic, guaranteeing the O(log n) bound regardless of insertion order.</p>
+      </div>
+
+      <h3>Finding the lowest common ancestor</h3>
+      <p class="body-text">To find the LCA of two nodes: recurse into both children. If a node finds the target in its left subtree <em>and</em> its right subtree, that node itself is the LCA — it's the exact point where the paths to each target diverge.</p>
+    </section>
+
+    <section class="card" id="s06" data-title="heaps priority queue heapify sift up down array representation">
+      <div class="eyebrow">// topics[06]</div>
+      <h2>Heaps / Priority Queues</h2>
+      <p class="lede">A tree that only promises one thing — the smallest (or largest) item is always at the root — and is clever enough to store that tree in a plain array.</p>
+
+      <h3>The array trick</h3>
+      <p class="body-text">A heap is always a <em>complete</em> binary tree (every level full except possibly the last, filled left to right), which means its shape is entirely predictable. That lets it live in a flat array with no pointers at all: for index <code>i</code>, the parent is at <code>(i-1)/2</code>, the left child at <code>2i+1</code>, the right child at <code>2i+2</code>.</p>
+
+      <h3>Why insert/extract are O(log n)</h3>
+      <div class="trace">
+        <div class="step"><span class="n">1</span><span class="t"><strong>Insert:</strong> append the new value at the end of the array, then "sift up" — repeatedly swap it with its parent while it's smaller (min-heap), until the heap property holds.</span></div>
+        <div class="step"><span class="n">2</span><span class="t"><strong>Extract min:</strong> swap the root with the last element, shrink the array by one, then "sift down" the new root — repeatedly swap with its smaller child until it settles.</span></div>
+        <div class="step"><span class="n">3</span><span class="t">Both operations only ever travel along one path from root to leaf — the tree's height. Since the tree is complete, height is always <code>log n</code>, which is exactly the cost of each operation.</span></div>
+      </div>
+
+      <div class="codepanel">
+        <div class="tab"><span class="dot"></span>Heaps.java</div>
+        <pre>PriorityQueue&lt;Integer&gt; minHeap = new PriorityQueue&lt;&gt;();
+PriorityQueue&lt;Integer&gt; maxHeap = new PriorityQueue&lt;&gt;(Collections.reverseOrder());
+PriorityQueue&lt;int[]&gt; pq = new PriorityQueue&lt;&gt;((a, b) -&gt; a[0] - b[0]); <span class="c">// custom comparator</span></pre>
+      </div>
+      <p class="lede" style="margin-top:14px;"><strong>Use cases:</strong> k-th largest/smallest, top-k frequent, merge k sorted lists, Dijkstra's algorithm (next up in [08]).</p>
+    </section>
+
+    <section class="card" id="s07" data-title="tries prefix tree insert search startswith space tradeoff">
+      <div class="eyebrow">// topics[07]</div>
+      <h2>Tries</h2>
+      <p class="lede">A tree shaped exactly like the words stored in it — every shared prefix becomes a shared path, so the tree literally encodes the structure of the dictionary.</p>
+
+      <h3>Worked example — inserting "cat"</h3>
+      <div class="trace">
+        <div class="step"><span class="n">1</span><span class="t">Start at the root. Look at child slot <code>'c'</code> — empty, so create a new node there.</span></div>
+        <div class="step"><span class="n">2</span><span class="t">Move into the <code>'c'</code> node, look at slot <code>'a'</code> — create it, move in.</span></div>
+        <div class="step"><span class="n">3</span><span class="t">Repeat for <code>'t'</code>, then mark that final node's <code>isWord = true</code>.</span></div>
+        <div class="step"><span class="n">4</span><span class="t">Searching <code>"ca"</code> afterward will walk to a valid node — but <code>isWord</code> is false there, so it's a known <em>prefix</em>, not a complete word. That distinction is exactly what powers autocomplete.</span></div>
+      </div>
+
+      <div class="codepanel">
+        <div class="tab"><span class="dot"></span>Trie.java</div>
+        <pre>class TrieNode {
+    TrieNode[] children = new TrieNode[26];
+    boolean isWord;
+}
+
+void insert(TrieNode root, String word) {
+    TrieNode node = root;
+    for (char c : word.toCharArray()) {
+        int i = c - 'a';
+        if (node.children[i] == null) node.children[i] = new TrieNode();
+        node = node.children[i];
+    }
+    node.isWord = true;
+}</pre>
+      </div>
+
+      <div class="note">
+        <span class="tag">THE TRADE-OFF</span>
+        <p>Lookup cost is O(k) where <code>k</code> is the word's length — independent of how many other words are stored. That's strictly better than a hash set's average O(k) hashing cost for prefix-style queries, but it costs memory: each node reserves space for up to 26 children whether they're used or not.</p>
+      </div>
+    </section>
+
+    <section class="card" id="s08" data-title="graphs bfs dfs dijkstra union find topological sort kahns adjacency">
+      <div class="eyebrow">// topics[08]</div>
+      <h2>Graphs</h2>
+      <p class="lede">Trees with the hierarchy constraint removed — any node can connect to any other, which is precisely why cycles and "is everything still connected" become real questions.</p>
+
+      <h3>Representation trade-off</h3>
+      <table class="ref">
+        <tr><th>Representation</th><th>Space</th><th>Edge lookup</th><th>Best for</th></tr>
+        <tr><td>Adjacency list</td><td class="num">O(V+E)</td><td class="num">O(degree)</td><td>Sparse graphs (most real ones)</td></tr>
+        <tr><td>Adjacency matrix</td><td class="num">O(V&sup2;)</td><td class="num">O(1)</td><td>Dense graphs, frequent edge checks</td></tr>
+      </table>
+
+      <h3>BFS vs. DFS — not interchangeable</h3>
+      <p class="body-text">BFS uses a queue and explores level by level, which is exactly why it's the one that finds the <em>shortest</em> path in an unweighted graph — it visits everything 1 edge away before anything 2 edges away. DFS uses a stack (or recursion) and commits to going as deep as possible before backtracking, which is what makes it the natural fit for cycle detection, connectivity checks, and topological sort.</p>
+
+      <div class="codepanel">
+        <div class="tab"><span class="dot"></span>Graph.java</div>
+        <pre>Map&lt;Integer, List&lt;Integer&gt;&gt; graph = new HashMap&lt;&gt;();
+graph.computeIfAbsent(u, k -&gt; new ArrayList&lt;&gt;()).add(v);
+
+void bfs(int start, Map&lt;Integer, List&lt;Integer&gt;&gt; graph) {
+    Set&lt;Integer&gt; visited = new HashSet&lt;&gt;();
+    Queue&lt;Integer&gt; q = new LinkedList&lt;&gt;();
+    q.offer(start); visited.add(start);
+    while (!q.isEmpty()) {
+        int node = q.poll();
+        for (int nb : graph.getOrDefault(node, List.of())) {
+            if (visited.add(nb)) q.offer(nb);
+        }
+    }
+}</pre>
+      </div>
+
+      <h3>Worked example — Dijkstra's shortest path</h3>
+      <div class="trace">
+        <div class="step"><span class="n">1</span><span class="t">Set every node's distance to infinity except the start node, which is 0. Put <code>(0, start)</code> in a min-heap keyed by distance.</span></div>
+        <div class="step"><span class="n">2</span><span class="t">Pop the closest unvisited node from the heap. Because all edge weights are non-negative, the moment a node is popped, its distance is <strong>final</strong> — nothing visited later could offer a shorter path back to it.</span></div>
+        <div class="step"><span class="n">3</span><span class="t">"Relax" each neighbor: if <code>dist[current] + edgeWeight &lt; dist[neighbor]</code>, update it and push the better distance onto the heap.</span></div>
+        <div class="step"><span class="n">4</span><span class="t">Repeat until the heap is empty. Total cost: O((V+E) log V), dominated by heap operations.</span></div>
+      </div>
+
+      <h3>Worked example — topological sort (Kahn's algorithm)</h3>
+      <div class="trace">
+        <div class="step"><span class="n">1</span><span class="t">Compute each node's in-degree (number of incoming edges).</span></div>
+        <div class="step"><span class="n">2</span><span class="t">Queue up every node with in-degree 0 — they have no unmet dependencies.</span></div>
+        <div class="step"><span class="n">3</span><span class="t">Pop a node, add it to the order, then decrement the in-degree of each of its neighbors. Any neighbor that drops to 0 joins the queue.</span></div>
+        <div class="step"><span class="n">4</span><span class="t">If every node makes it into the final order, it's valid. If some are left stranded with in-degree &gt; 0, the graph has a cycle and no valid order exists.</span></div>
+      </div>
+
+      <div class="note">
+        <span class="tag">WHY UNION-FIND IS NEARLY O(1)</span>
+        <p>Naively, "are these two nodes connected" needs a full traversal. Union-Find instead has each node point toward a representative "root" of its component. <em>Path compression</em> flattens the pointer chain every time you look something up, and <em>union by rank</em> always attaches the smaller tree under the larger one — together they keep the trees so shallow that each operation runs in amortized near-constant time, not the naive O(n).</p>
+      </div>
+    </section>
+
+    <section class="card" id="s09" data-title="sorting algorithms bubble merge quick heap stability divide and conquer">
+      <div class="eyebrow">// topics[09]</div>
+      <h2>Sorting Algorithms</h2>
+      <p class="lede">Every sorting question in an interview is really a question about which trade-off you're willing to accept — there's no free option.</p>
+
+      <table class="ref">
+        <tr><th>Algorithm</th><th>How it works</th><th>Avg</th><th>Worst</th><th>Space</th><th>Stable?</th></tr>
+        <tr><td>Bubble Sort</td><td>Repeatedly swap adjacent out-of-order pairs</td><td class="num">O(n&sup2;)</td><td class="num">O(n&sup2;)</td><td class="num">O(1)</td><td>Yes</td></tr>
+        <tr><td>Selection Sort</td><td>Repeatedly pick the min of the unsorted part, swap to front</td><td class="num">O(n&sup2;)</td><td class="num">O(n&sup2;)</td><td class="num">O(1)</td><td>No</td></tr>
+        <tr><td>Insertion Sort</td><td>Insert each new element into the already-sorted prefix</td><td class="num">O(n&sup2;)</td><td class="num">O(n&sup2;)</td><td class="num">O(1)</td><td>Yes</td></tr>
+        <tr><td>Merge Sort</td><td>Split in half recursively, merge sorted halves</td><td class="num">O(n log n)</td><td class="num">O(n log n)</td><td class="num">O(n)</td><td>Yes</td></tr>
+        <tr><td>Quick Sort</td><td>Partition around a pivot, recurse on each side</td><td class="num">O(n log n)</td><td class="num">O(n&sup2;)</td><td class="num">O(log n)</td><td>No</td></tr>
+        <tr><td>Heap Sort</td><td>Build a max-heap, repeatedly extract the max to the end</td><td class="num">O(n log n)</td><td class="num">O(n log n)</td><td class="num">O(1)</td><td>No</td></tr>
+      </table>
+
+      <div class="note">
+        <span class="tag">WHAT "STABLE" ACTUALLY MEANS</span>
+        <p>A stable sort keeps equal elements in their original relative order. It matters when you sort by a second key after already sorting by a first — say, sorting people by last name after they're already sorted by first name. An unstable sort can silently scramble that earlier ordering.</p>
+      </div>
+
+      <div class="codepanel">
+        <div class="tab"><span class="dot"></span>QuickSort.java</div>
+        <pre>void quickSort(int[] a, int lo, int hi) {
+    if (lo &gt;= hi) return;
+    int pivot = a[hi], i = lo;
+    for (int j = lo; j &lt; hi; j++) {
+        if (a[j] &lt; pivot) { swap(a, i, j); i++; }
+    }
+    swap(a, i, hi);
+    quickSort(a, lo, i - 1);
+    quickSort(a, i + 1, hi);
+}</pre>
+      </div>
+
+      <div class="warn">
+        <span class="tag">WHY QUICKSORT CAN HIT O(n&sup2;)</span>
+        <p>This implementation always picks the last element as the pivot. Feed it an already-sorted array and every partition splits into "everything" and "nothing" — n recursive levels, each doing O(n) work, for O(n&sup2;) total. Randomizing the pivot (or using median-of-three) makes that worst case astronomically unlikely in practice.</p>
+      </div>
+    </section>
+
+    <section class="card" id="s10" data-title="searching binary search invariant overflow rotated array first occurrence">
+      <div class="eyebrow">// topics[10]</div>
+      <h2>Searching</h2>
+      <p class="lede">Halving the search space every step is the cheapest speedup available — but only if the data is sorted, and only if the boundary logic is exactly right.</p>
+
+      <h3>The invariant that makes it work</h3>
+      <p class="body-text">At every step, the target — if it exists — is guaranteed to still be somewhere between <code>lo</code> and <code>hi</code>. Comparing the midpoint either finds it, or proves it must be strictly in the left half or the right half, letting you discard the other half entirely without ever looking at it.</p>
+
+      <div class="codepanel">
+        <div class="tab"><span class="dot"></span>BinarySearch.java</div>
+        <pre>int binarySearch(int[] a, int target) {
+    int lo = 0, hi = a.length - 1;
+    while (lo &lt;= hi) {
+        int mid = lo + (hi - lo) / 2;   <span class="c">// avoids overflow vs (lo+hi)/2</span>
+        if (a[mid] == target) return mid;
+        else if (a[mid] &lt; target) lo = mid + 1;
+        else hi = mid - 1;
+    }
+    return -1;
+}</pre>
+      </div>
+
+      <div class="warn">
+        <span class="tag">THE CLASSIC OFF-BY-ONE TRAP</span>
+        <p>If <code>lo</code> or <code>hi</code> isn't updated past <code>mid</code> when it should be, the loop can spin forever on a two-element window. Writing <code>lo = mid + 1</code> / <code>hi = mid - 1</code> (never plain <code>mid</code>) is what guarantees the window shrinks every iteration.</p>
+      </div>
+
+      <h3>Variant — search in a rotated sorted array</h3>
+      <p class="body-text">A rotated array like <code>[4,5,6,7,0,1,2]</code> isn't fully sorted, but one half of any given window always is. At each midpoint, check which half is properly ordered, then check whether the target could possibly fall within that ordered half's range — if not, it must be in the other half. This keeps the same O(log n) halving even though the array isn't strictly sorted.</p>
+    </section>
+
+    <section class="card" id="s11" data-title="recursion backtracking decision tree pruning subsets permutations">
+      <div class="eyebrow">// topics[11]</div>
+      <h2>Recursion &amp; Backtracking</h2>
+      <p class="lede">Backtracking is depth-first search over a tree of decisions: try a choice, recurse as if it were final, then undo it and try the next one as though it never happened.</p>
+
+      <div class="codepanel">
+        <div class="tab"><span class="dot"></span>Backtrack.java</div>
+        <pre>void backtrack(List&lt;Integer&gt; path <span class="c">/* , state */</span>) {
+    if (<span class="c">/* base case */</span>) {
+        result.add(new ArrayList&lt;&gt;(path));
+        return;
+    }
+    for (<span class="c">/* each choice */</span>) {
+        path.add(choice);            <span class="c">// make the choice</span>
+        backtrack(path <span class="c">/* , ... */</span>);
+        path.remove(path.size() - 1); <span class="c">// undo it — this line is the part people forget</span>
+    }
+}</pre>
+      </div>
+
+      <h3>Worked example — subsets of [1, 2, 3]</h3>
+      <div class="trace">
+        <div class="step"><span class="n">1</span><span class="t">At index 0, branch: include <code>1</code>, or skip it. Both branches recurse independently.</span></div>
+        <div class="step"><span class="n">2</span><span class="t">Including <code>1</code>: at index 1, branch again on <code>2</code> &rarr; paths <code>[1,2]</code> and <code>[1]</code>.</span></div>
+        <div class="step"><span class="n">3</span><span class="t">Each of those branches on <code>3</code> &rarr; <code>[1,2,3]</code>, <code>[1,2]</code>, <code>[1,3]</code>, <code>[1]</code>.</span></div>
+        <div class="step"><span class="n">4</span><span class="t">Skipping <code>1</code> at the start mirrors the same branching for <code>2</code> and <code>3</code> alone, producing the remaining four subsets — 8 total, because each of 3 elements independently doubles the branch count: O(2&#8319;).</span></div>
+      </div>
+
+      <div class="note">
+        <span class="tag">WHY "PRUNING" MATTERS</span>
+        <p>The decision tree is often exponential by nature (subsets, permutations, N-Queens). Pruning — abandoning a branch as soon as it's provably invalid, like a queen attacking another in N-Queens — doesn't change the worst-case bound, but it's the difference between a backtracking solution finishing in milliseconds versus not finishing at all.</p>
+      </div>
+    </section>
+
+    <section class="card" id="s12" data-title="dynamic programming memoization tabulation knapsack overlapping subproblems optimal substructure">
+      <div class="eyebrow">// topics[12]</div>
+      <h2>Dynamic Programming</h2>
+      <p class="lede">Recursion with a memory. If you're solving the exact same subproblem more than once, you're paying for it twice — DP is just refusing to pay twice.</p>
+
+      <h3>The two requirements</h3>
+      <p class="body-text">DP only applies when a problem has <strong>overlapping subproblems</strong> (the same smaller calculation gets needed repeatedly) and <strong>optimal substructure</strong> (the best overall answer can be built from the best answers to its subproblems). Fibonacci is the simplest example: <code>fib(5)</code> needs <code>fib(3)</code> twice if computed naively.</p>
+
+      <h3>Memoization vs. tabulation</h3>
+      <table class="ref">
+        <tr><th>Approach</th><th>Direction</th><th>Trade-off</th></tr>
+        <tr><td>Memoization (top-down)</td><td>Recursion + cache</td><td>Only computes states actually needed; pays recursion call overhead</td></tr>
+        <tr><td>Tabulation (bottom-up)</td><td>Iterative table fill</td><td>No recursion overhead, but fills every state, even unused ones</td></tr>
+      </table>
+
+      <div class="codepanel">
+        <div class="tab"><span class="dot"></span>Memo.java</div>
+        <pre>Map&lt;Integer, Long&gt; memo = new HashMap&lt;&gt;();
+long fib(int n) {
+    if (n &lt;= 1) return n;
+    if (memo.containsKey(n)) return memo.get(n);
+    long result = fib(n - 1) + fib(n - 2);
+    memo.put(n, result);
+    return result;
+}</pre>
+      </div>
+
+      <h3>Worked example — 0/1 knapsack, building the table</h3>
+      <p class="body-text">State: <code>dp[i][w]</code> = best value achievable using the first <code>i</code> items with capacity <code>w</code>. Transition: for each item, either skip it (<code>dp[i-1][w]</code>) or take it if it fits (<code>dp[i-1][w - weight] + value</code>) — take whichever is larger.</p>
+      <div class="trace">
+        <div class="step"><span class="n">1</span><span class="t">Base case: <code>dp[0][w] = 0</code> for all <code>w</code> — zero items, zero value, regardless of capacity.</span></div>
+        <div class="step"><span class="n">2</span><span class="t">For each item <code>i</code> and each capacity <code>w</code>, fill in <code>dp[i][w] = max(dp[i-1][w], dp[i-1][w-weight[i]] + value[i])</code> — but only consider the second option if <code>weight[i] &le; w</code>.</span></div>
+        <div class="step"><span class="n">3</span><span class="t">The answer ends up sitting in <code>dp[n][capacity]</code> — the best value using all items and the full capacity.</span></div>
+        <div class="step"><span class="n">4</span><span class="t">Because each cell only depends on the row above, this can be optimized down to a single rolling 1D array — O(capacity) space instead of O(items &times; capacity).</span></div>
+      </div>
+
+      <p class="lede" style="margin-top:14px;"><strong>Other classic patterns:</strong> longest common subsequence, longest increasing subsequence, coin change, edit distance — all follow the same five-step process from [00]'s sibling: define state, base case, transition, order, then optimize.</p>
+    </section>
+
+    <section class="card" id="s13" data-title="greedy algorithms exchange argument interval scheduling counterexample">
+      <div class="eyebrow">// topics[13]</div>
+      <h2>Greedy Algorithms</h2>
+      <p class="lede">Take the best option available right now, commit, and never reconsider. It's the cheapest possible strategy — when it's actually correct.</p>
+
+      <p class="body-text">Greedy only works when the problem has the <strong>greedy choice property</strong>: a locally optimal choice never closes off the path to a globally optimal solution. Proving this usually relies on an "exchange argument" — showing that any solution which deviates from the greedy choice can be rearranged into one that's at least as good.</p>
+
+      <div class="warn">
+        <span class="tag">A CASE WHERE GREEDY FAILS</span>
+        <p>Coin change with denominations <code>{1, 3, 4}</code>, target <code>6</code>: greedy grabs the largest coin that fits each time &mdash; <code>4</code>, then <code>1</code>, then <code>1</code> &mdash; 3 coins. But <code>3 + 3</code> reaches the same target in 2. Greedy isn't wrong by accident here; this denomination set simply isn't "canonical," so the greedy choice property doesn't hold. The general coin change problem needs DP (see [12]) precisely because it can't assume canonical coins.</p>
+      </div>
+
+      <p class="lede" style="margin-top:14px;"><strong>Where it does work:</strong> activity selection / interval scheduling (always pick the interval that finishes earliest), Huffman coding, fractional knapsack, jump game.</p>
+    </section>
+
+    <section class="card" id="s14" data-title="two pointers sliding window fixed variable longest substring">
+      <div class="eyebrow">// topics[14]</div>
+      <h2>Two Pointers &amp; Sliding Window</h2>
+      <p class="lede">Two indices walking through the same array do the work of nested loops in a single pass — as long as the problem lets you reason about a contiguous range incrementally.</p>
+
+      <h3>Fixed vs. variable windows</h3>
+      <p class="body-text">A <strong>fixed</strong> window (e.g. "max sum of any 3 consecutive elements") slides one position at a time, dropping the leftmost element and adding one on the right. A <strong>variable</strong> window (e.g. "longest substring without repeats") grows on the right and only shrinks from the left when some condition is violated — both pointers still only ever move forward, which is what keeps the whole thing O(n) instead of O(n&sup2;).</p>
+
+      <div class="codepanel">
+        <div class="tab"><span class="dot"></span>SlidingWindow.java</div>
+        <pre>int left = 0, maxLen = 0;
+Set&lt;Character&gt; seen = new HashSet&lt;&gt;();
+for (int right = 0; right &lt; s.length(); right++) {
+    while (seen.contains(s.charAt(right))) {
+        seen.remove(s.charAt(left));
+        left++;
+    }
+    seen.add(s.charAt(right));
+    maxLen = Math.max(maxLen, right - left + 1);
+}</pre>
+      </div>
+
+      <h3>Worked example — "abcabcbb"</h3>
+      <div class="trace">
+        <div class="step"><span class="n">1</span><span class="t"><code>right</code> walks a, b, c &mdash; all new, window grows to <code>"abc"</code>, length 3.</span></div>
+        <div class="step"><span class="n">2</span><span class="t">Next char is <code>a</code>, already in the window. Shrink from the left — drop <code>a</code> &mdash; until <code>a</code> is no longer in the set.</span></div>
+        <div class="step"><span class="n">3</span><span class="t">Window becomes <code>"bca"</code>, length still 3. Continue rightward, repeating the same expand/shrink rhythm.</span></div>
+        <div class="step"><span class="n">4</span><span class="t">The maximum length seen across the whole pass — 3 — is the answer, found in one O(n) sweep instead of checking every substring.</span></div>
+      </div>
+    </section>
+
+    <section class="card" id="s15" data-title="bit manipulation xor twos complement mask clear lowest bit">
+      <div class="eyebrow">// topics[15]</div>
+      <h2>Bit Manipulation</h2>
+      <p class="lede">The operations a CPU does natively, with no loop required — a handful of identities cover almost every bitwise interview question.</p>
+
+      <div class="codepanel">
+        <div class="tab"><span class="dot"></span>Bits.java</div>
+        <pre>a &amp; (a - 1);              <span class="c">// clear lowest set bit</span>
+a &amp; 1;                     <span class="c">// check if odd</span>
+Integer.bitCount(a);       <span class="c">// count set bits</span>
+a ^ a == 0;                <span class="c">// XOR self-cancels</span></pre>
+      </div>
+
+      <h3>Why a &amp; (a - 1) clears the lowest set bit</h3>
+      <p class="body-text">Subtracting 1 flips every trailing zero to a 1 and the lowest set bit to 0 (think of borrowing in subtraction — the borrow ripples through the trailing zeros). ANDing that with the original number keeps everything above the lowest set bit identical, but the lowest set bit itself becomes 0 &mdash; cleared in one operation, no loop needed.</p>
+
+      <h3>Why XOR is the "find the unique number" trick</h3>
+      <p class="body-text">XOR has two properties that make it almost magical for this: <code>x ^ x = 0</code> (a number cancels with itself) and XOR is commutative and associative (order doesn't matter). XOR every number in an array where everything appears twice except one — all the pairs cancel to 0, and 0 XORed with the lone number just returns that number. One pass, O(1) extra space.</p>
+    </section>
+
+    <section class="card" id="s16" data-title="java collections arraylist hashmap treemap arraydeque complexity">
+      <div class="eyebrow">// topics[16]</div>
+      <h2>Java Collections Quick Reference</h2>
+      <p class="lede">Which implementation to reach for, and what you're trading away by choosing it.</p>
+      <table class="ref">
+        <tr><th>Interface</th><th>Implementations</th><th>Notes</th></tr>
+        <tr><td>List</td><td>ArrayList, LinkedList</td><td>ArrayList for access (O(1)); LinkedList for frequent insert/delete (O(1))</td></tr>
+        <tr><td>Set</td><td>HashSet, LinkedHashSet, TreeSet</td><td>HashSet O(1) avg; TreeSet keeps sorted order at O(log n) per op</td></tr>
+        <tr><td>Map</td><td>HashMap, LinkedHashMap, TreeMap</td><td>HashMap O(1) avg; TreeMap sorted by key at O(log n) per op</td></tr>
+        <tr><td>Queue</td><td>LinkedList, ArrayDeque, PriorityQueue</td><td>Prefer ArrayDeque over the legacy Stack class — it's faster and unsynchronized</td></tr>
+        <tr><td>Deque</td><td>ArrayDeque</td><td>O(1) at both ends; backs sliding-window-max and monotonic-stack patterns</td></tr>
+      </table>
+    </section>
+
+    <section class="card" id="s17" data-title="problem solving signal approach lookup table pattern recognition">
+      <div class="eyebrow">// topics[17]</div>
+      <h2>Signal &rarr; Approach</h2>
+      <p class="lede">Most interview problems telegraph their solution in the phrasing. Train yourself to hear it.</p>
+      <div>
+        <div class="signal-row"><div class="signal">"Pair/triplet summing to X" in a sorted array</div><div class="approach">Two pointers</div></div>
+        <div class="signal-row"><div class="signal">"Longest/shortest substring with condition"</div><div class="approach">Sliding window</div></div>
+        <div class="signal-row"><div class="signal">"Top k" / "kth largest"</div><div class="approach">Heap</div></div>
+        <div class="signal-row"><div class="signal">Tree/graph "shortest path"</div><div class="approach">BFS or Dijkstra</div></div>
+        <div class="signal-row"><div class="signal">"All combinations / permutations"</div><div class="approach">Backtracking</div></div>
+        <div class="signal-row"><div class="signal">"Min/max ways" with overlap</div><div class="approach">Dynamic programming</div></div>
+        <div class="signal-row"><div class="signal">"Connected components" / cycle check</div><div class="approach">Union-Find or DFS</div></div>
+        <div class="signal-row"><div class="signal">Repeated range queries</div><div class="approach">Prefix sums / segment tree</div></div>
+        <div class="signal-row"><div class="signal">Repeated existence/count lookups</div><div class="approach">Hash map / set</div></div>
+        <div class="signal-row"><div class="signal">"Next greater/smaller element"</div><div class="approach">Monotonic stack</div></div>
+      </div>
+    </section>
+
+    <section class="card" id="s18" data-title="input size complexity guide constraints operations per second">
+      <div class="eyebrow">// topics[18]</div>
+      <h2>Input Size &rarr; Complexity Guide</h2>
+      <p class="lede">A sanity check, based on a rule of thumb that a typical machine handles roughly <strong>10&#8312; operations per second</strong> — so a 1&ndash;2 second time limit caps you at around 10&#8312;&ndash;10&#8313; total operations.</p>
+      <div class="scale-bar">
+        <div class="scale-row"><span>n &le; 10</span><div class="track"><div class="fill" style="width:96%;background:var(--coral-deep)"></div></div><span>O(n!) / O(2&#8319;&middot;n)</span></div>
+        <div class="scale-row"><span>n &le; 20</span><div class="track"><div class="fill" style="width:80%;background:var(--coral)"></div></div><span>O(2&#8319;) — bitmask DP</span></div>
+        <div class="scale-row"><span>n &le; 500</span><div class="track"><div class="fill" style="width:62%;background:var(--coral)"></div></div><span>O(n&sup3;)</span></div>
+        <div class="scale-row"><span>n &le; 10,000</span><div class="track"><div class="fill" style="width:46%;background:var(--gold-deep)"></div></div><span>O(n&sup2;)</span></div>
+        <div class="scale-row"><span>n &le; 1,000,000</span><div class="track"><div class="fill" style="width:28%;background:var(--gold)"></div></div><span>O(n log n) or O(n)</span></div>
+        <div class="scale-row"><span>n &gt; 1,000,000</span><div class="track"><div class="fill" style="width:14%;background:var(--teal)"></div></div><span>O(n) or O(log n)</span></div>
+      </div>
+      <p class="lede" style="margin-top:12px; font-size:13px;">If <code>n &le; 20</code> shows up in a problem's constraints, that's almost always a deliberate hint that an exponential solution is expected and intended.</p>
+    </section>
+
+  </main>
+</div>
+
+<footer>dsa-field-guide.java &mdash; index zero-based, like the arrays it describes. Built to explain the "why," not just the "what."</footer>
+
+<a href="#" class="totop" id="totop" aria-label="Back to top">&uarr;</a>
+
+<script>
+  const links = Array.from(document.querySelectorAll('.nav-link'));
+  const sections = Array.from(document.querySelectorAll('main section.card'));
+  const linkMap = new Map(links.map(l => [l.getAttribute('href').slice(1), l]));
+
+  const spyObserver = new IntersectionObserver((entries) => {
+    entries.forEach(entry => {
+      const link = linkMap.get(entry.target.id);
+      if (!link) return;
+      if (entry.isIntersecting) {
+        links.forEach(l => l.classList.remove('active'));
+        link.classList.add('active');
+      }
+    });
+  }, { rootMargin: '-15% 0px -70% 0px', threshold: 0 });
+  sections.forEach(s => spyObserver.observe(s));
+
+  const revealObserver = new IntersectionObserver((entries) => {
+    entries.forEach(entry => {
+      if (entry.isIntersecting) {
+        entry.target.classList.add('in-view');
+        revealObserver.unobserve(entry.target);
+      }
+    });
+  }, { threshold: 0.08 });
+  sections.forEach(s => revealObserver.observe(s));
+
+  const filterInput = document.getElementById('filter');
+  filterInput.addEventListener('input', () => {
+    const q = filterInput.value.trim().toLowerCase();
+    sections.forEach(s => {
+      const hay = (s.dataset.title + ' ' + s.querySelector('h2').textContent).toLowerCase();
+      const match = hay.includes(q);
+      s.style.display = match ? '' : 'none';
+      const link = linkMap.get(s.id);
+      if (link) link.style.opacity = match ? '1' : '0.3';
+    });
+  });
+
+  const totop = document.getElementById('totop');
+  window.addEventListener('scroll', () => {
+    totop.classList.toggle('show', window.scrollY > 600);
+  });
+  totop.addEventListener('click', (e) => {
+    e.preventDefault();
+    window.scrollTo({ top: 0, behavior: 'smooth' });
+  });
+
+  document.querySelectorAll('.legend .item').forEach(item => {
+    const target = document.getElementById(item.dataset.target);
+    item.addEventListener('mouseenter', () => {
+      document.querySelectorAll('.curve').forEach(c => { c.style.opacity = '0.25'; c.style.strokeWidth = '2.4'; });
+      target.style.opacity = '1';
+      target.style.strokeWidth = '4';
+    });
+    item.addEventListener('mouseleave', () => {
+      document.querySelectorAll('.curve').forEach(c => { c.style.opacity = '1'; c.style.strokeWidth = '2.4'; });
+    });
+  });
+
+  const reduceMotion = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
+  if (!reduceMotion) {
+    document.querySelectorAll('.curve').forEach((path, i) => {
+      const len = path.getTotalLength();
+      path.style.strokeDasharray = len;
+      path.style.strokeDashoffset = len;
+      path.getBoundingClientRect();
+      path.style.transition = 'stroke-dashoffset 1.1s ease ' + (i * 0.12) + 's';
+      requestAnimationFrame(() => { path.style.strokeDashoffset = '0'; });
+    });
+  }
+</script>
+
+</body>
+</html>
